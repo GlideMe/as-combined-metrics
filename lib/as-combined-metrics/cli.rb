@@ -19,16 +19,16 @@ class AsCombinedMetrics::Cli < Thor
 
   default_task  :start
 
-  class_option  :region,              :desc => 'AWS Region',                                          :default => 'us-east-1',      :aliases => 'r', :type => :string
-  class_option  :log_level,           :desc => 'Log level',                                           :default => 'INFO',           :aliases => 'l', :type => :string
-  class_option  :config_file,         :desc => 'Metrics config file location',                                                      :aliases => 'f', :type => :string
-  class_option  :scalein_only,        :desc => 'gather combined metrics for scale in only',           :default => false
-  class_option  :scaleout_only,       :desc => 'gather combined metrics for scale out only',          :default => false
-  class_option  :period,              :desc => 'Metric datapoint last x minutes',                     :default => 300,              :aliases => 'p', :type => :numeric
-  class_option  :timeout,             :desc => 'Timeout (seconds) for fetching autoscale group name', :default => 300,              :aliases => 't', :type => :numeric
-  class_option  :once,                :desc => "no loop - run once",                                  :default => false,            :aliases => 'o', :type => :boolean
-  class_option  :dryrun,              :desc => "do not submit metric to CloudWatch",                  :default => false,            :aliases => 'd', :type => :boolean
-  class_option  :interval,            :desc => 'interval to check metrics',                           :default => 30,               :aliases => 'i', :type => :numeric
+  class_option  :region,        :desc => 'AWS Region',                                                    :default => 'us-east-1', :aliases => 'r', :type => :string
+  class_option  :log_level,     :desc => 'Log level, either: DEBUG, INFO, WARN, ERROR, FATAL or UNKNOWN', :default => 'INFO',      :aliases => 'l', :type => :string
+  class_option  :config_file,   :desc => 'Metrics config file location',                                                           :aliases => 'f', :type => :string
+  class_option  :scalein_only,  :desc => 'gather combined metrics for scale in only',                     :default => false
+  class_option  :scaleout_only, :desc => 'gather combined metrics for scale out only',                    :default => false
+  class_option  :period,        :desc => 'Metric datapoint last x minutes',                               :default => 300,          :aliases => 'p', :type => :numeric
+  class_option  :timeout,       :desc => 'Timeout (seconds) for fetching autoscale group name',           :default => 300,          :aliases => 't', :type => :numeric
+  class_option  :once,          :desc => "no loop - run once",                                            :default => false,        :aliases => 'o', :type => :boolean
+  class_option  :dryrun,        :desc => "do not submit metric to CloudWatch",                            :default => false,        :aliases => 'd', :type => :boolean
+  class_option  :interval,      :desc => 'interval to check metrics',                                     :default => 30,           :aliases => 'i', :type => :numeric
   desc "start", "combine metrics"
   def start
     %w(INT TERM USR1 USR2 TTIN).each do |sig|
