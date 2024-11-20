@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = ">= 1.3.6"
   s.files = `git ls-files`.split($\).reject{|n| n =~ %r[png|gif\z]}.reject{|n| n =~ %r[^(test|spec|features)/]}
   s.add_runtime_dependency 'thor', '~> 0.19', '>= 0.19.1'
-  s.add_runtime_dependency 'aws-sdk', '~> 2.0.45', '>= 2.0.45'
+  s.add_runtime_dependency 'aws-sdk', '~> 3.2.0', '>= 3.2.0'
   s.add_runtime_dependency 'activesupport', '~> 4.2.3', '>= 4.2.3'
   s.executables   = s.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   s.extra_rdoc_files = ['README.md', 'LICENSE']
