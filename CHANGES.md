@@ -6,3 +6,5 @@ Be able to to have spot fleets monitored
 require fileutils for use with ruby 2.6.8
 1.2.0
 A spot fleet deployed one fleet per subnet (<logical id><subnet suffix>) is found by its logical id prefix, and the instances of every fleet count in the combined metric
+1.2.1
+The per-subnet fleets are read with DescribeStackResources, which the instance roles allow (ListStackResources only for a stack of more than 100 resources)

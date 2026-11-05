@@ -56,17 +56,23 @@ module AsCombinedMetrics::Cli::CloudFormation
     end
   end
 
-  # Every AWS::EC2::SpotFleet of the stack whose logical id starts with prefix, across all
-  # pages of list_stack_resources. An error (throttling, access) is logged and gives an empty
-  # list, so the caller's retry loop keeps going.
+  # Every AWS::EC2::SpotFleet of the stack whose logical id starts with prefix.
+  # DescribeStackResources first: the instance roles grant cloudformation:Describe* on the
+  # stack, not ListStackResources. It is refused for a stack of more than 100 resources, and
+  # only then ListStackResources (paged) is tried. An error is logged and gives an empty list,
+  # so the caller's retry loop keeps going.
   def spot_fleets_with_prefix(prefix)
+    is_fleet = lambda { |r| r.resource_type == "AWS::EC2::SpotFleet" && r.logical_resource_id.start_with?(prefix) }
+    begin
+      return @cfm.describe_stack_resources({ :stack_name => @stack_name }).stack_resources.select(&is_fleet)
+    rescue Exception => e
+      logger.warn { set_color "Unable to describe the stack resources - #{e}", :yellow }
+    end
     fleets = []
     next_token = nil
     loop do
       page = @cfm.list_stack_resources({ :stack_name => @stack_name, :next_token => next_token }.compact)
-      fleets += page.stack_resource_summaries.select { |r|
-        r.resource_type == "AWS::EC2::SpotFleet" && r.logical_resource_id.start_with?(prefix)
-      }
+      fleets += page.stack_resource_summaries.select(&is_fleet)
       next_token = page.next_token
       break if next_token.nil?
     end
