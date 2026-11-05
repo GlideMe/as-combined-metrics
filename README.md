@@ -93,6 +93,7 @@ Required privileges
 * autoscaling:DescribeAutoScalingGroups
 * cloudformation:DescribeStackResources
 * cloudformation:DescribeStacks
+* cloudformation:ListStackResources (only for a stack of more than 100 resources: DescribeStackResources refuses those, and a spot fleet deployed one-per-subnet is then found with ListStackResources)
 
 policy sample
 ````json
@@ -125,7 +126,8 @@ policy sample
             "Effect": "Allow",
             "Action": [
                 "cloudformation:DescribeStackResources",
-                "cloudformation:DescribeStacks"
+                "cloudformation:DescribeStacks",
+                "cloudformation:ListStackResources"
             ],
             "Resource": [
                 "*"

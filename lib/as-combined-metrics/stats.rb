@@ -43,7 +43,10 @@ module AsCombinedMetrics::Cli::Stats
 
       instances = []
       instances +=  @as.describe_auto_scaling_groups({auto_scaling_group_names: @config[:autoscale_group_name], max_records: 1}).auto_scaling_groups.first.instances.collect {|i| i[:instance_id]} if @config.has_key?(:autoscale_group_name)
-      instances += @ec2.describe_spot_fleet_instances({spot_fleet_request_id: @config[:spot_fleet_id][0]}).active_instances.collect{|i| i[:instance_id]} if @config.has_key?(:spot_fleet_id)
+      # every fleet, not only the first: a fleet deployed one-per-subnet is several fleets
+      (@config[:spot_fleet_id] || []).each do |spot_fleet_id|
+        instances += @ec2.describe_spot_fleet_instances({spot_fleet_request_id: spot_fleet_id}).active_instances.collect{|i| i[:instance_id]}
+      end
 
       logger.info { set_color "Found #{instances.size} Instances for autoscale group: #{@config['autoscale_group_name']}", :magenta }
       
