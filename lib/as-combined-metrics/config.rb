@@ -56,18 +56,14 @@ module AsCombinedMetrics::Cli::Config
       @config[:spot_fleet_id].each {|g| validate_spot_fleet(g)}
     end
     if @config[:cloudformation] && @config[:cloudformation][:enabled]
-      # Every logical resource id that the config file does not yet record as resolved is
-      # looked up, also when another one already is: a config written by an earlier run that
-      # resolved the autoscale group but not the spot fleet (1.1.1 did that when the fleet was
-      # deployed one-per-subnet) would otherwise never get its fleets.
-      resolved = @config[:resolved_logical_resource_ids] || []
-      pending = (@config[:cloudformation][:logical_resource_ids] || []) - resolved
-      if !pending.empty?
-        verify_stack_name
-        pending.each do | resource |
-          logger.debug "logical_resource_id: #{resource}"
-          describe_stack(resource)
-        end
+      # Every logical resource id is looked up at every start, also when the config file already
+      # holds names from an earlier run: a config written by 1.1.1 holds the autoscale group but
+      # not a fleet deployed one-per-subnet, and a stack can gain a fleet. The lookups are one
+      # call per id, once per start, and record_resource keeps each name once.
+      verify_stack_name
+      (@config[:cloudformation][:logical_resource_ids] || []).each do | resource |
+        logger.debug "logical_resource_id: #{resource}"
+        describe_stack(resource)
       end
     end
   end
