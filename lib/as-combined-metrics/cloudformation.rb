@@ -18,6 +18,7 @@ module AsCombinedMetrics::Cli::CloudFormation
         if !stack_info.nil?
           physical_resource_id = stack_info.stack_resource_detail.physical_resource_id
           record_resource(stack_info.stack_resource_detail.resource_type, physical_resource_id)
+          mark_resolved(logical_resource_id)
           File.open(options[:config_file], "w") { |f| f.write(@config.to_yaml) }
         end
       rescue Exception => e
@@ -33,6 +34,7 @@ module AsCombinedMetrics::Cli::CloudFormation
         fleets = spot_fleets_with_prefix(logical_resource_id)
         if !fleets.empty?
           fleets.each { |fleet| record_resource("AWS::EC2::SpotFleet", fleet.physical_resource_id, fleet.logical_resource_id) }
+          mark_resolved(logical_resource_id)
           File.open(options[:config_file], "w") { |f| f.write(@config.to_yaml) }
           physical_resource_id = fleets.first.physical_resource_id
           next
@@ -80,6 +82,13 @@ module AsCombinedMetrics::Cli::CloudFormation
   rescue Exception => e
     logger.warn { set_color "Unable to list the stack resources - #{e}", :yellow }
     []
+  end
+
+  # The config file remembers which logical ids are resolved, so a later start looks up only
+  # the ones that are not (Config#process).
+  def mark_resolved(logical_resource_id)
+    @config[:resolved_logical_resource_ids] ||= []
+    @config[:resolved_logical_resource_ids] << logical_resource_id unless @config[:resolved_logical_resource_ids].include?(logical_resource_id)
   end
 
   def record_resource(resource_type, physical_resource_id, logical_resource_id = nil)
